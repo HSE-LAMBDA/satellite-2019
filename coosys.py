@@ -183,9 +183,11 @@ def cartesian_to_kepler(data, gamma=398603*10**9):
         argument = 0.
         anomaly = vector_angle_sign(ascending, r, l)
     else:
-        cosa = (p / vector_length(r) - 1) / 3
-        sina = scalar_mul(v - vector_mul(w, r), r) * p / (vector_length(r) ** 3 * e)
-        anomaly = np.arctan2(sina, cosa)
+        cosa = np.clip((p / vector_length(r) - 1) / e, -1., 1.)
+        sign = scalar_mul(v, r)
+        anomaly = np.arccos(cosa)
+        if sign < -eps:
+            anomaly = 2 * np.pi - anomaly
 
         pericenter = rotate_vector(r, -anomaly, l)
         pericenter = pericenter / vector_length(pericenter)
