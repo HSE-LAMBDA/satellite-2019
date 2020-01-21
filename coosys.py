@@ -211,6 +211,9 @@ def kepler_to_cartesian(data, gamma=398603*10**9):
     """
     a, e, inclination, longitude, argument, anomaly = data
 
+    assert a > 0., "semimajor axis should be positive"
+    assert 0. <= e < 1., "eccentricity should be from 0 to 1"
+
     ascending = rotate_vector(Ox, longitude, Oz)
 
     axis = rotate_vector(ascending, np.pi / 2, Oz)
@@ -224,7 +227,8 @@ def kepler_to_cartesian(data, gamma=398603*10**9):
     r *= p / (1 + e * np.cos(anomaly))
 
     w = L / vector_norm(r)
-    v = vector_mul(w, r) + r * vector_length(r) * e / p * np.sin(anomaly)
+    drdt = (gamma * ((e ** 2 - 1) / p - (e * np.cos(anomaly) - 1) / vector_length(r))) ** 0.5
+    v = vector_mul(w, r) + r / vector_length(r) * drdt
 
     return np.concatenate([r, v])
 
@@ -355,6 +359,9 @@ def quaternion_to_cartesian(data, gamma=398603*10**9):
     a, e, anomaly = data[:3]
     q = data[3:]
 
+    assert a > 0., "semimajor axis should be positive"
+    assert 0. <= e < 1., "eccentricity should be from 0 to 1"
+
     p = a * (1 - e ** 2)
 
     pericenter = apply_quaternion(Ox, q)
@@ -365,7 +372,8 @@ def quaternion_to_cartesian(data, gamma=398603*10**9):
     r *= p / (1 + e * np.cos(anomaly))
 
     w = L / vector_norm(r)
-    v = vector_mul(w, r) + r * vector_length(r) * e / p * np.sin(anomaly)
+    drdt = (gamma * ((e**2 - 1) / p - (e * np.cos(anomaly) - 1) / vector_length(r)))**0.5
+    v = vector_mul(w, r) + r / vector_length(r) * drdt
 
     return np.concatenate([r, v])
 
