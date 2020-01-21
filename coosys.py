@@ -157,7 +157,6 @@ def cartesian_to_kepler(data, gamma=398603*10**9):
     assert E < -eps, "Body is escaping gravity"
 
     L = vector_mul(r, v)
-    w = L / vector_norm(r)  # angular velocity vector
     l = L / vector_length(L)
 
     p = vector_norm(L) / gamma  # parameter of orbit
