@@ -1,10 +1,10 @@
 import numpy as np
 
-eps = 10**(-10)
+eps = 10.**(-10)
 
-Ox = np.array([1, 0, 0], dtype="float64")
-Oy = np.array([0, 1, 0], dtype="float64")
-Oz = np.array([0, 0, 1], dtype="float64")
+Ox = np.array([1., 0., 0.], dtype="float64")
+Oy = np.array([0., 1., 0.], dtype="float64")
+Oz = np.array([0., 0., 1.], dtype="float64")
 
 
 def scalar_mul(vector1, vector2):
@@ -79,12 +79,10 @@ def vector_angle_sign(vector1, vector2, axis):
     """
     direction = vector_mul(vector1, vector2)
     scalar = scalar_mul(direction, axis)
-    if scalar > eps:
+    if scalar > -eps:
         return vector_angle(vector1, vector2)
-    elif scalar < -eps:
-        return 2 * np.pi - vector_angle(vector1, vector2)
     else:
-        return 0.
+        return 2 * np.pi - vector_angle(vector1, vector2)
 
 
 def matrix_mul(matrix, vector):
@@ -110,9 +108,9 @@ def rotation_matrix(angle, axis):
     cosa = np.cos(angle)
     sina = np.sin(angle)
     matrix = np.array(
-        [[cosa + (1 - cosa) * axis[0]**2, (1 - cosa) * axis[0] * axis[1] - sina * axis[2], (1 - cosa) * axis[0] * axis[2] + sina * axis[1]],
-         [(1 - cosa) * axis[1] * axis[0] + sina * axis[2], cosa + (1 - cosa) * axis[1]**2, (1 - cosa) * axis[1] * axis[2] - sina * axis[0]],
-         [(1 - cosa) * axis[2] * axis[0] - sina * axis[1], (1 - cosa) * axis[2] * axis[1] + sina * axis[0], cosa + (1 - cosa) * axis[2]**2]],
+        [[cosa + (1. - cosa) * axis[0]**2, (1. - cosa) * axis[0] * axis[1] - sina * axis[2], (1. - cosa) * axis[0] * axis[2] + sina * axis[1]],
+         [(1. - cosa) * axis[1] * axis[0] + sina * axis[2], cosa + (1. - cosa) * axis[1]**2, (1. - cosa) * axis[1] * axis[2] - sina * axis[0]],
+         [(1. - cosa) * axis[2] * axis[0] - sina * axis[1], (1. - cosa) * axis[2] * axis[1] + sina * axis[0], cosa + (1. - cosa) * axis[2]**2]],
         dtype="float64")
     return matrix
 
@@ -128,6 +126,13 @@ def rotate_vector(vector, angle, axis):
     """
     matrix = rotation_matrix(angle, axis)
     return matrix @ vector
+
+
+def resu(value):
+    if value < 0.:
+        return 0.
+    else:
+        return value**0.5
 
 
 def cartesian_to_kepler(data, gamma=398603*10**9):
@@ -160,12 +165,8 @@ def cartesian_to_kepler(data, gamma=398603*10**9):
     l = L / vector_length(L)
 
     p = vector_norm(L) / gamma  # parameter of orbit
-    e2 = 1 + 2 * E * vector_norm(L) / gamma**2
-    if np.abs(e2) < eps:  # orbit is close to circular
-        e = 0.
-    else:
-        e = e2**0.5
-    a = - gamma / (2 * E)
+    e = resu(1. + 2. * E * vector_norm(L) / gamma**2)
+    a = - gamma / (2. * E)
 
     inclination = vector_angle(l, Oz)
 
@@ -178,11 +179,11 @@ def cartesian_to_kepler(data, gamma=398603*10**9):
 
     ascending = rotate_vector(Ox, longitude, Oz)
 
-    if e == 0.:  # Orbit is circular
+    if e < eps:  # Orbit is circular
         argument = 0.
         anomaly = vector_angle_sign(ascending, r, l)
     else:
-        cosa = np.clip((p / vector_length(r) - 1) / e, -1., 1.)
+        cosa = np.clip((p / vector_length(r) - 1.) / e, -1., 1.)
         sign = scalar_mul(v, r)
         anomaly = np.arccos(cosa)
         if sign < -eps:
@@ -215,18 +216,21 @@ def kepler_to_cartesian(data, gamma=398603*10**9):
 
     ascending = rotate_vector(Ox, longitude, Oz)
 
-    axis = rotate_vector(ascending, np.pi / 2, Oz)
+    axis = rotate_vector(ascending, np.pi / 2., Oz)
     axis = rotate_vector(axis, inclination, ascending)
 
     l = vector_mul(ascending, axis)
-    p = a * (1 - e**2)
+    p = a * (1. - e**2)
     L = l * (p * gamma)**0.5
 
     r = rotate_vector(ascending, argument + anomaly, l)
-    r *= p / (1 + e * np.cos(anomaly))
+    r *= p / (1. + e * np.cos(anomaly))
 
     w = L / vector_norm(r)
-    drdt = (gamma * ((e ** 2 - 1) / p - (e * np.cos(anomaly) - 1) / vector_length(r))) ** 0.5
+    drdt = resu(gamma * ((e ** 2 - 1.) / p - (e * np.cos(anomaly) - 1.) / vector_length(r)))
+    if np.sin(anomaly) < -eps:
+        drdt *= -1.
+    
     v = vector_mul(w, r) + r / vector_length(r) * drdt
 
     return np.concatenate([r, v])
@@ -331,13 +335,8 @@ def cartesian_to_quaternion(data, gamma=398603*10**9):
     a, e, inclination, longitude, argument, anomaly = cartesian_to_kepler(data, gamma)
 
     q = quaternion_from_angle(longitude / 2, Oz)
-
-    ascending = apply_quaternion(Ox, q)
-    q = quaternion_multiplication(quaternion_from_angle(inclination / 2, ascending), q)
-
-    l = vector_mul(data[:3], data[3:])
-    q = quaternion_multiplication(quaternion_from_angle(argument / 2, l), q)
-
+    q = quaternion_multiplication(q, quaternion_from_angle(inclination / 2, Ox))
+    q = quaternion_multiplication(q, quaternion_from_angle(argument / 2, Oz))
     q /= quaternion_length(q)
 
     return np.concatenate([[a, e, anomaly], q])
@@ -361,17 +360,20 @@ def quaternion_to_cartesian(data, gamma=398603*10**9):
     assert a > 0., "semimajor axis should be positive"
     assert 0. <= e < 1., "eccentricity should be from 0 to 1"
 
-    p = a * (1 - e ** 2)
+    p = a * (1. - e ** 2)
 
     pericenter = apply_quaternion(Ox, q)
     l = apply_quaternion(Oz, q)
     L = l * (p * gamma)**0.5
 
     r = rotate_vector(pericenter, anomaly, l)
-    r *= p / (1 + e * np.cos(anomaly))
+    r *= p / (1. + e * np.cos(anomaly))
 
     w = L / vector_norm(r)
-    drdt = (gamma * ((e**2 - 1) / p - (e * np.cos(anomaly) - 1) / vector_length(r)))**0.5
+    drdt = resu(gamma * ((e**2 - 1.) / p - (e * np.cos(anomaly) - 1.) / vector_length(r)))
+    if np.sin(anomaly) < -eps:
+        drdt *= -1.
+
     v = vector_mul(w, r) + r / vector_length(r) * drdt
 
     return np.concatenate([r, v])
