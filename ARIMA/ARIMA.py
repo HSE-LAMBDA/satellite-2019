@@ -2,11 +2,11 @@ from sklearn.linear_model import LinearRegression, RidgeCV
 import numpy as np
 from statsmodels.tsa.arima_model import ARIMA
 
+
 class myARIMA:
     """
-    Simple auto-regression model
+    Simple ARIMA model
     """
-
 
     def __init__(self, data):
         """
@@ -18,7 +18,6 @@ class myARIMA:
         """
         self.X = data
         self.model = ARIMA(self.X, order=(1,1,0))
-        
 
     def fit(self, **kwargs):
         """
@@ -41,8 +40,6 @@ class myARIMA:
         steps: int
             Number of prediction steps
         """
-
-        #X_test = self.train_last
 
         y_pred = np.empty((steps, ), dtype=np.float64)
         for step in range(steps):
