@@ -1,0 +1,11 @@
+1. Create directory with name "data"
+2. Put train.csv file into data directory, so the relative path to file with train data should be "data/train.csv"
+3. Create new directory track1 in directory "data"
+4. Put file test.csv into directory track1, so the realtive path to file with test data should be "data/track1/test.csv"
+5. Run all sells in IDAO2020.ipynb file
+
+You will get:
+a. submission.csv -- submission for the first track
+b. scalers.txt, coefs.txt, cluster_last_time.csv -- serialized train parameters for all models for the second track2
+
+Submission for the second track is zipped main.py, scalers.txt, coefs.txt, cluster_last_time.csv, main.sh, Makefile.
