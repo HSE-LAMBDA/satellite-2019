@@ -73,7 +73,7 @@
     * SMAPE IDAO:  0.15213662796334887
     * SMAPE new:   0.12034785153708875
 
-# Conclusions¶
+# Conclusions
 
 * Using "Updated SGP4" doesn't improve the models' score (?!)
 * High error at low Perigee Radius
