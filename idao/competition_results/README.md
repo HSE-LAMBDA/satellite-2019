@@ -72,6 +72,26 @@
     * IDAO score:  84.78633720366511
     * SMAPE IDAO:  0.15213662796334887
     * SMAPE new:   0.12034785153708875
+    
+Результаты на датасете с исправленными периодами (исправлены с помощью [тетрадки](https://github.com/HSE-LAMBDA/satellite-2019/blob/master/idao/lordprotoss/fix_dataset_periods.ipynb; приведены только изменившиеся результаты) 
+
+* Fixed period
+
+IDAO score:  89.72641571606664
+SMAPE IDAO:  0.10273584283933358
+SMAPE new:   0.1361869931907276
+
+* LR (Fixed period)
+
+IDAO score:  93.55510110973732
+SMAPE IDAO:  0.06444898890262675
+SMAPE new:   0.08471389182819992
+
+* IDAO submisssion (veni_vidi_vici, fixed period)
+
+IDAO score:  97.13407016473609
+SMAPE IDAO:  0.02865929835263916
+SMAPE new:   0.05211427293161519
 
 # Conclusions
 
