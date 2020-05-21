@@ -72,10 +72,51 @@
     * IDAO score:  84.78633720366511
     * SMAPE IDAO:  0.15213662796334887
     * SMAPE new:   0.12034785153708875
+    
+Результаты на датасете с исправленными периодами (приведены только изменившиеся результаты) 
+
+* Fixed period
+
+  * IDAO score:  89.72641571606664
+  * SMAPE IDAO:  0.10273584283933358  
+  * SMAPE new:   0.1361869931907276
+
+* LR (Fixed period)
+
+  * IDAO score:  93.55510110973732
+  * SMAPE IDAO:  0.06444898890262675
+  * SMAPE new:   0.08471389182819992
+
+* IDAO submisssion (veni_vidi_vici, fixed period)
+
+  * IDAO score:  97.13407016473609
+  * SMAPE IDAO:  0.02865929835263916
+  * SMAPE new:   0.05211427293161519
+  
+Результаты на датасете (меняющиеся КСД и радиус перигея) с исправленными периодами (приведены только изменившиеся результаты) 
+
+* Fixed period
+
+  * IDAO score:  16.922649119502996
+  * SMAPE IDAO:  0.83077350880497
+  * SMAPE new:   1.5403981609737116
+
+* LR (fixed period)
+
+  * IDAO score:  37.49714331446481
+  * SMAPE IDAO:  0.6250285668553519
+  * SMAPE new:   0.9485094915391553
+
+* LPC_RP_veni_vidi_vici (fixed period)
+
+   * IDAO score:  77.000094325152
+   * SMAPE IDAO:  0.22999905674847995
+   * SMAPE new:   0.1377343049504146
 
 # Conclusions
 
 * Using "Updated SGP4" doesn't improve the models' score (?!)
+* Fixing periods improve score for some solutions
 * High error at low Perigee Radius
 * IDAO models do quite well
 * To going deeper see graphs here
